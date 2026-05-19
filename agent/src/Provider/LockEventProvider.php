@@ -37,26 +37,28 @@ final readonly class LockEventProvider
          * @var array<string, array{ticks: int, event: array{action: string, lockerCode: string}}> $timeTasks
          */
         $timeTasks = [];
-        while (true) {
-            $source = $this->connect($client);
+        $source = $this->connect($client);
 
+        while (true) {
             try {
                 foreach ($client->stream($source, $this->tickTime) as $chunk) {
                     if ($chunk->isTimeout()) {
-                        foreach ($timeTasks as $index => $task) {
-                            $timeTasks[$index]['ticks']--;
+                        yield from $this->tickPendingTasks($timeTasks);
 
-                            if (0 === $timeTasks[$index]['ticks']) {
-                                yield $task['event'];
-                                unset($timeTasks[$index]);
-                            }
-                        }
+                        $this->logger->debug(
+                            'Mercure stream tick, {taskCount} pending tasks. (EventSource timeout)',
+                            ['taskCount' => count($timeTasks)],
+                        );
 
                         continue;
                     }
 
                     if ($chunk->isLast()) {
-                        break;
+                        $this->logger->debug('Mercure stream ended, reconnecting');
+                        $source->cancel();
+                        $source = $this->reconnect($client);
+
+                        continue 2;
                     }
 
                     if ($chunk instanceof ServerSentEvent) {
@@ -79,10 +81,35 @@ final readonly class LockEventProvider
                         'errorMessage' => $e->getMessage(),
                     ]
                 );
-            } finally {
                 $source->cancel();
+                $source = $this->reconnect($client);
             }
         }
+    }
+
+    /**
+     * @param array<string, array{ticks: int, event: array{action: string, lockerCode: string}}> $timeTasks
+     *
+     * @return \Generator<int, array{action: string, lockerCode: string}>
+     */
+    private function tickPendingTasks(array &$timeTasks): \Generator
+    {
+        foreach ($timeTasks as $index => $task) {
+            $timeTasks[$index]['ticks']--;
+
+            if (0 === $timeTasks[$index]['ticks']) {
+                yield $task['event'];
+
+                unset($timeTasks[$index]);
+            }
+        }
+    }
+
+    private function reconnect(EventSourceHttpClient $client): ResponseInterface
+    {
+        $this->logger->debug('Reconnecting to Mercure stream');
+
+        return $this->connect($client);
     }
 
     private function connect(EventSourceHttpClient $client): ResponseInterface
