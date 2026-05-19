@@ -31,6 +31,9 @@ services:
             int $unlockTime: '%unlock_time%'
             array $watchedLockerCodes: '%watched_locker_codes%'
             array $gpioMap: '%gpio_map%'
+            string $mercureUrl: '%env(MERCURE_URL)%'
+            string $mercureJwt: '%env(MERCURE_JWT)%'
+            string $appBaseUrl: '%env(APP_BASE_URL)%'
 
     App\:
         resource: '../src/'

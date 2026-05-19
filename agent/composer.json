@@ -19,7 +19,6 @@
         "symfony/flex": "^2",
         "symfony/framework-bundle": "8.0.*",
         "symfony/http-client": "8.0.*",
-        "symfony/mercure-bundle": "^0.4.2",
         "symfony/runtime": "8.0.*",
         "symfony/yaml": "8.0.*"
     },

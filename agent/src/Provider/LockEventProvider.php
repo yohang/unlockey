@@ -8,15 +8,17 @@ use Symfony\Component\HttpClient\Chunk\ServerSentEvent;
 use Symfony\Component\HttpClient\EventSourceHttpClient;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\Mercure\HubInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final readonly class LockEventProvider
 {
     public function __construct(
-        private HubInterface    $hub,
         private LoggerInterface $logger,
+        private array           $watchedLockerCodes,
+        private string          $appBaseUrl,
+        private string          $mercureUrl,
+        private string          $mercureJwt,
         private int             $tickTime,
         private int             $unlockTime,
     )
@@ -114,11 +116,16 @@ final readonly class LockEventProvider
 
     private function connect(EventSourceHttpClient $client): ResponseInterface
     {
+        $topicArguments = array_map(
+            fn (string $code) => 'topic=' . urlencode($this->appBaseUrl . '/app/locker/' . $code . '/{+any}'),
+            $this->watchedLockerCodes,
+        );
+
         return $client->connect(
-            $this->hub->getUrl() . '?topic=*',
+            $this->mercureUrl . '?' . implode('&', $topicArguments),
             [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $this->hub->getProvider()->getJwt(),
+                    'Authorization' => 'Bearer ' . $this->mercureJwt,
                 ],
             ],
         );

@@ -1,0 +1,40 @@
+services:
+    agent:
+        image: ghcr.io/yohang/unlockey/agent:main
+        command: 'bin/console app:locker-watcher'
+        privileged: true
+        restart: unless-stopped
+        volumes:
+            - "data:/app/var/data"
+            - "/dev/gpiochip0:/dev/gpiochip0:rw"
+        environment:
+            APP_ENV: prod
+            APP_SECRET: ${APP_SECRET} # Set in /etc/profile
+            APP_BASE_URL: https://mercure-iot.giarel.li
+            MERCURE_URL: https://mercure-iot.giarel.li/.well-known/mercure
+            MERCURE_JWT: ${MERCURE_JWT}  # Set in /etc/profile
+            WATCHED_LOCKER_CODES: '["chips-1", "chips-2", "chips-3", "chips-4"]'
+            GPIO_MAP: '{"chips-1": 4, "chips-2": 22, "chips-3": 6, "chips-4": 26}'
+
+    wud:
+        image: getwud/wud:latest
+        restart: unless-stopped
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+        environment:
+            - "TZ=Europe/Paris"
+            - "WUD_LOG_LEVEL=info"
+            - "WUD_WATCHER_LOCAL_CRON=*/5 * * * *"
+            - "WUD_WATCHER_LOCAL_WATCHBYDEFAULT=true"
+            - "WUD_WATCHER_LOCAL_WATCHEVENTS=false"
+
+            # ⚡ LE MODE "WATCHTOWER" (AUTO-UPDATE AUTOMATIQUE)
+            # Dit à WUD d'agir directement et de mettre à jour le conteneur dès qu'il trouve une image plus récente.
+            - "WUD_TRIGGER_DOCKER_UPDATE_MODE=simple"
+            # Nettoie l'ancienne image Docker après la mise à jour (vital pour ne pas saturer la carte SD du Pi !)
+            - "WUD_TRIGGER_DOCKER_UPDATE_PRUNE=true"
+            # Seuil de mise à jour (all = patch, minor, et major)
+            - "WUD_TRIGGER_DOCKER_UPDATE_THRESHOLD=all"
+
+volumes:
+    data:
