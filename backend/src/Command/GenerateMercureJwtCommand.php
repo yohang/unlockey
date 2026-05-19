@@ -30,14 +30,11 @@ final class GenerateMercureJwtCommand
     ): int
     {
         $topics = array_map(
-            fn(string $code) => str_replace(
-                'http://',
-                'https://',
-                $this->urlGenerator->generate(
-                    'locker_show',
-                    ['code' => $code],
-                    UrlGeneratorInterface::ABSOLUTE_URL,
-                )). '/{+any}',
+            fn(string $code) => $this->urlGenerator->generate(
+                'locker_show',
+                ['code' => $code],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            ). '/{+any}',
             $lockers
         );
 
