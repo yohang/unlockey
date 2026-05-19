@@ -116,3 +116,5 @@ EXPOSE 443
 EXPOSE 443/udp
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
