@@ -21,8 +21,8 @@
     "lang": "fr",
     "name": "unlockey",
     "short_name": "unlockey",
-    "start_url": "https://unlockey.un-zero-un.net/app/",
-    "scope": "https://unlockey.un-zero-un.net/app/",
-    "description": "unlockey est une application de sécurisation pour vos vélos.",
+    "start_url": "https://mercure-iot.giarel.li/app/",
+    "scope": "https://mercure-iot.giarel.li/app/",
+    "description": "unlockey est une application d'ouverture de casiers'",
     "id": "fr.unlockey"
 }
