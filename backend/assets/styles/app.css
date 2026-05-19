@@ -1,4 +1,4 @@
-@import 'dashboard';
+@import './dashboard.css';
 
 .btn button {
     background: none;

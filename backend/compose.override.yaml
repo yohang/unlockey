@@ -12,11 +12,6 @@ services:
             - './infra/docker/php/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro'
         tty: true
         command: [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
-        ports:
-            # webpack-dev-server
-            -   target: 8080
-                published: ${WEBPACK_DEV_PORT:-8080}
-                protocol: tcp
 
     backend-database:
         ports: [ '5432:5432' ]

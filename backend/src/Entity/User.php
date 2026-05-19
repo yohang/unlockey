@@ -77,12 +77,6 @@ class User implements HasTimestamp, UserInterface, PasswordAuthenticatedUserInte
     }
 
     #[\Override]
-    public function eraseCredentials(): void
-    {
-        $this->plainPassword = null;
-    }
-
-    #[\Override]
     public function getUserIdentifier(): string
     {
         if (null === $this->email) {
