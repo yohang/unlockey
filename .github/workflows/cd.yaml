@@ -75,6 +75,8 @@ jobs:
             APP_ENV: ${{ vars.APP_ENV }}
             APP_SECRET: ${{ secrets.APP_SECRET }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
+            CADDY_MERCURE_URL: ${{ vars.CADDY_MERCURE_URL }}
             SERVER_NAME: ${{ vars.SERVER_NAME }}
             IMAGE_TAG: ${{ github.ref_name }}
             EXTERNAL_USER_ID: 33
