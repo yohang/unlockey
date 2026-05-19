@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "feae1170368aaec4cb831f352579fa82",
+    "content-hash": "7dfd4af255cc7f7774055be3ec32a853",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -1185,56 +1185,6 @@
                 }
             ],
             "time": "2025-10-17T11:30:53+00:00"
-        },
-        {
-            "name": "piphp/gpio",
-            "version": "0.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PiPHP/GPIO.git",
-                "reference": "9288aa1b56c7ca85b182bbfb5225313ca7354093"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PiPHP/GPIO/zipball/9288aa1b56c7ca85b182bbfb5225313ca7354093",
-                "reference": "9288aa1b56c7ca85b182bbfb5225313ca7354093",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.3||^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "PiPHP\\GPIO\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andrew Carter",
-                    "email": "andrewcarter1992@gmail.com"
-                }
-            ],
-            "description": "A library for accessing the GPIO pins on a Raspberry Pi",
-            "keywords": [
-                "GPIO",
-                "pi",
-                "pin",
-                "pins",
-                "raspberry"
-            ],
-            "support": {
-                "issues": "https://github.com/PiPHP/GPIO/issues",
-                "source": "https://github.com/PiPHP/GPIO/tree/master"
-            },
-            "time": "2020-08-24T13:50:12+00:00"
         },
         {
             "name": "psr/cache",
@@ -4421,6 +4371,7 @@
     "platform": {
         "php": ">=8.5",
         "ext-ctype": "*",
+        "ext-ffi": "*",
         "ext-iconv": "*",
         "ext-pcntl": "*",
         "ext-pdo_sqlite": "*"

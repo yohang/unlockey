@@ -7,8 +7,14 @@ parameters:
     env(TICK_TIME): 1
     env(UNLOCK_TIME): 5
     env(GPIO_MAP): null
+    env(GPIO_CHIP): /dev/gpiochip0
+    env(GPIO_CONSUMER): unlockey-agent
+    env(LIBGPIOD_LIBRARY): libgpiod.so.3
     watched_locker_codes: '%env(json:WATCHED_LOCKER_CODES)%'
     gpio_map: '%env(json:GPIO_MAP)%'
+    gpio_chip: '%env(string:GPIO_CHIP)%'
+    gpio_consumer: '%env(string:GPIO_CONSUMER)%'
+    gpio_library: '%env(string:LIBGPIOD_LIBRARY)%'
     tick_time: '%env(int:TICK_TIME)%'
     unlock_time: '%env(int:UNLOCK_TIME)%'
 
@@ -26,13 +32,17 @@ services:
             array $watchedLockerCodes: '%watched_locker_codes%'
             array $gpioMap: '%gpio_map%'
 
-    PiPHP\GPIO\GPIO: ~
-
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    App\Gpio\LibgpiodPinDriver:
+        arguments:
+            $chipPath: '%gpio_chip%'
+            $consumer: '%gpio_consumer%'
+            $library: '%gpio_library%'
 
     App\Actuator\Actuator: '@App\Actuator\RaspberryGPIOActuator'

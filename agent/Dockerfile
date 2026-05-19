@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 	file \
 	gettext \
 	git \
+	libgpiod3 \
 	libnss3-tools \
 	sqlite3 \
 	&& rm -rf /var/lib/apt/lists/*
@@ -28,7 +29,7 @@ RUN addgroup --gid 986 gpio; \
     usermod -aG gpio www-data
 
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN install-php-extensions @composer pdo_sqlite pcntl
+RUN install-php-extensions @composer pdo_sqlite pcntl ffi
 
 USER www-data
 
@@ -43,6 +44,7 @@ RUN composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-pr
 COPY --chown=www-data:www-data .env .env
 COPY --chown=www-data:www-data bin bin/
 COPY --chown=www-data:www-data config config/
+COPY --chown=www-data:www-data infra/docker/php/conf.d/symfony.prod.ini /usr/local/etc/php/conf.d/symfony.ini
 COPY --chown=www-data:www-data migrations migrations/
 COPY --chown=www-data:www-data src src/
 
