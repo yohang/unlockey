@@ -24,6 +24,8 @@ RUN set -eux; \
     mkdir -p /var/run/php /app/var /var/www /data /config; \
     chown -R www-data:www-data /usr/local/etc/php /var/run/php /var/www /app /app/var /data /config
 
+RUN addgroup --gid 986 gpio; \
+    usermod -aG gpio www-data
 
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN install-php-extensions @composer pdo_sqlite pcntl
