@@ -33,4 +33,21 @@ final readonly class LockerLockingService
 
         $this->hub->publish($update);
     }
+
+    public function close(Locker $locker): void
+    {
+        $id = $this->urlGenerator->generate(
+            'locker_show',
+            ['code' => $locker->code],
+            UrlGeneratorInterface::ABSOLUTE_URL,
+        );
+
+        $update = new Update(
+            $id . '/open',
+            json_encode(['@id' => $id, 'code' => $locker->code, 'action' => 'close']),
+            true,
+        );
+
+        $this->hub->publish($update);
+    }
 }

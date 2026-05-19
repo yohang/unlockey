@@ -24,10 +24,12 @@ final readonly class LockerStateTransitionListener
             return;
         }
 
-        if (LockerState::TRANSITION_OPEN !== $event->getTransition()->getName()) {
+        if (LockerState::TRANSITION_OPEN === $event->getTransition()->getName()) {
+            $this->lockerLockingService->open($locker);
+
             return;
         }
 
-        $this->lockerLockingService->open($locker);
+        $this->lockerLockingService->close($locker);
     }
 }

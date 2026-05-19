@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Gpio;
 
+use FFI\Exception;
+
 final class LibgpiodPinDriver
 {
     private const string CDEF = <<<'CDEF'
@@ -99,7 +101,7 @@ CDEF;
 
         try {
             $this->ffi = \FFI::cdef(self::CDEF, $this->library);
-        } catch (\FFI\Exception $e) {
+        } catch (Exception $e) {
             throw new \RuntimeException(
                 'Unable to load libgpiod through PHP FFI from ' . $this->library . '.',
                 previous: $e,
