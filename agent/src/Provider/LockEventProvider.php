@@ -10,6 +10,7 @@ use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final readonly class LockEventProvider
 {
@@ -31,20 +32,14 @@ final readonly class LockEventProvider
     {
         $httpClient = HttpClient::create();
         $client = new EventSourceHttpClient($httpClient);
-        $source = $client->connect(
-            $this->hub->getUrl() . '?topic=*',
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->hub->getProvider()->getJwt(),
-                ],
-            ],
-        );
 
         /**
          * @var array<string, array{ticks: int, event: array{action: string, lockerCode: string}}> $timeTasks
          */
         $timeTasks = [];
         while (true) {
+            $source = $this->connect($client);
+
             try {
                 foreach ($client->stream($source, $this->tickTime) as $chunk) {
                     if ($chunk->isTimeout()) {
@@ -61,7 +56,7 @@ final readonly class LockEventProvider
                     }
 
                     if ($chunk->isLast()) {
-                        return;
+                        break;
                     }
 
                     if ($chunk instanceof ServerSentEvent) {
@@ -76,15 +71,29 @@ final readonly class LockEventProvider
                         yield $data;
                     }
                 }
-            } catch (\LogicException $e) {
-                $this->logger->error(
-                    'Error while listening to mercure updates: {errorMessage}',
+            } catch (\LogicException|TransportExceptionInterface $e) {
+                $this->logger->warning(
+                    'Mercure stream dropped, reconnecting: {errorMessage}',
                     [
                         'exception' => $e,
                         'errorMessage' => $e->getMessage(),
                     ]
                 );
+            } finally {
+                $source->cancel();
             }
         }
+    }
+
+    private function connect(EventSourceHttpClient $client): ResponseInterface
+    {
+        return $client->connect(
+            $this->hub->getUrl() . '?topic=*',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->hub->getProvider()->getJwt(),
+                ],
+            ],
+        );
     }
 }
