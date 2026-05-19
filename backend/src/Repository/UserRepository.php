@@ -7,6 +7,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/** @extends ServiceEntityRepository<User> */
 final class UserRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -20,7 +21,7 @@ final class UserRepository extends ServiceEntityRepository
         $this->getEntityManager()->flush();
     }
 
-    public function update(User $user): void
+    public function update(): void
     {
         $this->getEntityManager()->flush();
     }

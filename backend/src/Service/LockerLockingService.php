@@ -27,7 +27,7 @@ final readonly class LockerLockingService
 
         $update = new Update(
             $id . '/open',
-            json_encode(['@id' => $id, 'code' => $locker->code, 'action' => 'open']),
+            $this->encodePayload(['@id' => $id, 'code' => $locker->code, 'action' => 'open']),
             true,
         );
 
@@ -44,10 +44,23 @@ final readonly class LockerLockingService
 
         $update = new Update(
             $id . '/open',
-            json_encode(['@id' => $id, 'code' => $locker->code, 'action' => 'close']),
+            $this->encodePayload(['@id' => $id, 'code' => $locker->code, 'action' => 'close']),
             true,
         );
 
         $this->hub->publish($update);
+    }
+
+    /**
+     * @param array{ @id: string, code: string|null, action: 'open'|'close' } $payload
+     */
+    private function encodePayload(array $payload): string
+    {
+        $encoded = json_encode($payload);
+        if (false === $encoded) {
+            throw new \LogicException('Unable to encode locker update payload.');
+        }
+
+        return $encoded;
     }
 }

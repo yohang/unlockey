@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: UserRepository::class)]
 #[Table(name: 'app_user')]
 #[HasLifecycleCallbacks]
-class User implements HasTimestamp, UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable
+final class User implements HasTimestamp, UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, \Stringable
 {
     use TimestampImpl;
 
@@ -54,6 +54,21 @@ class User implements HasTimestamp, UserInterface, PasswordAuthenticatedUserInte
         $this->initialize();
     }
 
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): void
+    {
+        $this->plainPassword = $plainPassword;
+    }
+
     #[\Override]
     public function getPassword(): ?string
     {
@@ -79,7 +94,7 @@ class User implements HasTimestamp, UserInterface, PasswordAuthenticatedUserInte
     #[\Override]
     public function getUserIdentifier(): string
     {
-        if (null === $this->email) {
+        if (null === $this->email || '' === $this->email) {
             throw new \LogicException('Trying to access user identifier on a user without email.');
         }
 

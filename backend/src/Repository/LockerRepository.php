@@ -7,6 +7,7 @@ use App\Entity\Locker;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/** @extends ServiceEntityRepository<Locker> */
 final class LockerRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -14,15 +15,7 @@ final class LockerRepository extends ServiceEntityRepository
         parent::__construct($registry, Locker::class);
     }
 
-    /**
-     * @return array<int, Locker>
-     */
-    public function findAll(): array
-    {
-        return parent::findAll();
-    }
-
-    public function update(Locker $locker): void
+    public function update(): void
     {
         $this->getEntityManager()->flush();
     }

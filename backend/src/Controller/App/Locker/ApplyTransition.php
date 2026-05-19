@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[AsController]
 #[Route('/app/locker/{code}/apply/{transition}', name: 'locker_apply_transition', methods: ['POST'])]
-class ApplyTransition
+final class ApplyTransition
 {
     public function __construct(
         private readonly StateMachine $stateMachine,
@@ -30,7 +30,7 @@ class ApplyTransition
     ): RedirectResponse
     {
         $this->stateMachine->apply($locker, $transition);
-        $this->lockerRepository->update($locker);
+        $this->lockerRepository->update();
 
         return new RedirectResponse(
             $this->urlGenerator->generate('locker_show', ['code' => $locker->code]),

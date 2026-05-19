@@ -26,7 +26,7 @@ final class SearchLockerType extends AbstractType
                 EntityType::class,
                 [
                     'class'        => Locker::class,
-                    'choice_label' => fn (Locker $locker) => sprintf('%s (%s)', $locker->code, $locker->name),
+                    'choice_label' => fn (Locker $locker) => sprintf('%s (%s)', $locker->code ?? '', $locker->name ?? ''),
                     'choice_value' => fn (?Locker $locker) => $locker ? $this->urlGenerator->generate('locker_show', ['code' => $locker->code]) : null,
                     'placeholder'  => 'Code du casier',
                     'required'     => false,

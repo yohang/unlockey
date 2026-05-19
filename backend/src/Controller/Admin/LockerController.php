@@ -18,6 +18,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * @extends AbstractCrudController<Locker>
+ * @psalm-suppress PropertyNotSetInConstructor
+ */
 final class LockerController extends AbstractCrudController
 {
     public function __construct(

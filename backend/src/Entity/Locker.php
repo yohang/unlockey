@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Entity(repositoryClass: LockerRepository::class)]
 #[Table]
 #[HasLifecycleCallbacks]
-class Locker implements HasTimestamp, \Stringable
+final class Locker implements HasTimestamp, \Stringable
 {
     use TimestampImpl;
 
@@ -46,6 +46,16 @@ class Locker implements HasTimestamp, \Stringable
         $this->id = Uuid::v6();
 
         $this->initialize();
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function getState(): LockerState
+    {
+        return $this->state;
     }
 
     #[\Override]

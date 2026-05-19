@@ -15,6 +15,7 @@ enum LockerState: string implements State, TranslatableInterface
     public const string TRANSITION_OPEN = 'open';
     public const string TRANSITION_CLOSE = 'close';
 
+    #[\Override]
     public function trans(TranslatorInterface $translator, ?string $locale = null): string
     {
         return match ($this) {
