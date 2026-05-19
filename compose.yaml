@@ -1,0 +1,18 @@
+services:
+    agent:
+        extends: { file: agent/compose.yaml, service: agent }
+
+    backend-php:
+        extends: { file: backend/compose.yaml, service: backend-php }
+
+    backend-database:
+        extends: { file: backend/compose.yaml, service: backend-database }
+
+networks:
+    unlockey-agent: ~
+    unlockey-backend: ~
+
+volumes:
+    database-data: ~
+    caddy_data: ~
+    caddy_config: ~

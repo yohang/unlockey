@@ -1,0 +1,38 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    env(TICK_TIME): 1
+    env(UNLOCK_TIME): 5
+    env(GPIO_MAP): null
+    watched_locker_codes: '%env(json:WATCHED_LOCKER_CODES)%'
+    gpio_map: '%env(json:GPIO_MAP)%'
+    tick_time: '%env(int:TICK_TIME)%'
+    unlock_time: '%env(int:UNLOCK_TIME)%'
+
+services:
+    _instanceof:
+        App\Actuator\Actuator: { tags: ['actuator'] }
+        Doctrine\Common\EventSubscriber: { tags: ['doctrine.event_subscriber'] }
+
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            int $tickTime: '%tick_time%'
+            int $unlockTime: '%unlock_time%'
+            array $watchedLockerCodes: '%watched_locker_codes%'
+            array $gpioMap: '%gpio_map%'
+
+    PiPHP\GPIO\GPIO: ~
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Actuator\Actuator: '@App\Actuator\RaspberryGPIOActuator'

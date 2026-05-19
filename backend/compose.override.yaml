@@ -1,0 +1,22 @@
+services:
+    backend-php:
+        environment:
+            CADDY_SERVER_EXTRA_DIRECTIVES: tls /app/infra/docker/php/tls/cert.pem /app/infra/docker/php/tls/key.pem
+            FRANKENPHP_WORKER_CONFIG: watch
+            XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+            APP_ENV: "${APP_ENV:-dev}"
+        extra_hosts:
+            - host.docker.internal:host-gateway
+        volumes:
+            - '.:/app:rw'
+            - './infra/docker/php/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro'
+        tty: true
+        command: [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
+        ports:
+            # webpack-dev-server
+            -   target: 8080
+                published: ${WEBPACK_DEV_PORT:-8080}
+                protocol: tcp
+
+    backend-database:
+        ports: [ '5432:5432' ]

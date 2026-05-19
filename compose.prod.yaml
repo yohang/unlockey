@@ -1,0 +1,13 @@
+services:
+    agent:
+        deploy: { replicas: 0 }
+
+    backend-php:
+        extends: { file: backend/compose.prod.yaml, service: backend-php }
+
+    backend-database:
+        extends: { file: backend/compose.prod.yaml, service: backend-database }
+
+networks:
+    public:
+        external: true

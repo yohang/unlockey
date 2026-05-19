@@ -1,0 +1,18 @@
+{% extends 'app/base.html.twig' %}
+
+{% block body %}
+    <h1>{{ locker.name }}</h1>
+
+    <div class="my-5">
+        Le casier est actuellement <strong>{{ locker.state|trans }}</strong>
+    </div>
+
+    <div class="text-center">
+        {% for transition in finite_reachable_transitions(locker) %}
+            <form action="{{ path('locker_apply_transition', {code: locker.code, transition: transition.name}) }}" method="post">
+                <button class="btn btn-lg btn-primary">{{ transition.getPropertyValue('label') }}</button>
+            </form>
+        {% endfor %}
+    </div>
+
+{% endblock %}

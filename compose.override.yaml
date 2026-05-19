@@ -1,0 +1,10 @@
+services:
+    agent:
+        extends:  { file: agent/compose.override.yaml, service: agent }
+        networks: [ unlockey-backend ]
+
+    backend-php:
+        extends: { file: backend/compose.override.yaml, service: backend-php }
+
+    backend-database:
+        extends: { file: backend/compose.override.yaml, service: backend-database }

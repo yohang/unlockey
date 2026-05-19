@@ -1,0 +1,9 @@
+services:
+    agent:
+        command: 'bin/console app:locker-watcher -vv'
+        environment:
+            APP_ENV: dev
+            APP_DEBUG: true
+        volumes:
+            - '.:/app:rw'
+            - './infra/docker/php/conf.d/symfony.dev.ini:/usr/local/etc/php/conf.d/symfony.ini:ro'

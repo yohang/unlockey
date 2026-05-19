@@ -1,0 +1,52 @@
+services:
+    backend-php:
+        image:    ghcr.io/yohang/unlockey/backend-php:${DOCKER_TAG-latest}
+        networks: [ unlockey-backend ]
+        depends_on: [ backend-database ]
+        restart: unless-stopped
+        environment:
+            SERVER_NAME: ${SERVER_NAME:-localhost}
+            MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+            MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+            MERCURE_URL: ${CADDY_MERCURE_URL:-http://localhost/.well-known/mercure}
+            MERCURE_PUBLIC_URL: ${CADDY_MERCURE_PUBLIC_URL:-https://${SERVER_NAME:-localhost}:${HTTPS_PORT:-443}/.well-known/mercure}
+            MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
+        build:
+            context: .
+            target: app
+            args:
+                EXTERNAL_USER_ID: ${EXTERNAL_USER_ID-1000}
+        volumes:
+            - caddy_data:/data
+            - caddy_config:/config
+        ports:
+            # HTTP
+            -   target: 80
+                published: ${HTTP_PORT:-80}
+                protocol: tcp
+            # HTTPS
+            -   target: 443
+                published: ${HTTPS_PORT:-443}
+                protocol: tcp
+            # HTTP/3
+            -   target: 443
+                published: ${HTTP3_PORT:-443}
+                protocol: udp
+
+
+    backend-database:
+        image:   postgres:18-trixie
+        volumes: [ 'database-data:/var/lib/postgresql' ]
+        networks: [ unlockey-backend ]
+        environment:
+            - POSTGRES_DB=unlockey
+            - POSTGRES_USER=unlockey
+            - POSTGRES_PASSWORD=unlockey
+
+volumes:
+    database-data: ~
+    caddy_data: ~
+    caddy_config: ~
+
+networks:
+    unlockey-backend: ~

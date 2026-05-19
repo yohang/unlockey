@@ -1,0 +1,26 @@
+{% extends 'app/base.html.twig' %}
+
+{% block body %}
+    <h1>Tableau de bord</h1>
+
+    <div {{ stimulus_controller('choose-locker') }} class="text-center my-5">
+        <h2 class="mb-3">Réserver un casier</h2>
+
+        <h3>Tapez le code du casier</h3>
+        {{ form_start(searchForm) }}
+        {{ form_widget(searchForm.locker) }}
+        {{ form_end(searchForm) }}
+
+        <h3 class="my-5">Ou</h3>
+
+        <a href="#" class="btn btn-lg btn-primary" data-choose-locker-target="qrCodeButton">Scannez le QR Code</a>
+
+        <dialog data-choose-locker-target="qrDialog" class="QRDialog">
+            <h2 class="my-3">Scannez le QRCode sur le casier</h2>
+
+            <div id="qr-reader" class="my-5">Chargement...</div>
+
+            <button class="btn btn-secondary" data-choose-locker-target="qrCloseButton">Fermer</button>
+        </dialog>
+    </div>
+{% endblock %}

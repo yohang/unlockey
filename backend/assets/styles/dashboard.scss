@@ -1,0 +1,13 @@
+.QRDialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    border: none;
+    border-radius: 1em;
+    z-index: 100;
+
+    &::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+}

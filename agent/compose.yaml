@@ -1,0 +1,14 @@
+services:
+    agent:
+        image:    ghcr.io/yohang/unlockey/agent:${DOCKER_TAG-latest}
+        networks: [ unlockey-agent ]
+        env_file: .env
+        command:  'bin/console app:locker-watcher'
+        build:
+            context: .
+            target: app
+            args:
+                EXTERNAL_USER_ID: ${EXTERNAL_USER_ID-1000}
+
+networks:
+    unlockey-agent: ~

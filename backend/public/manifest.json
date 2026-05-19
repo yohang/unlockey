@@ -1,0 +1,28 @@
+{
+    "theme_color": "#80ba26",
+    "background_color": "#ffffff",
+    "icons": [
+        {
+            "purpose": "maskable",
+            "sizes": "512x512",
+            "src": "icon512_maskable.png",
+            "type": "image/png"
+        },
+        {
+            "purpose": "any",
+            "sizes": "512x512",
+            "src": "icon512_rounded.png",
+            "type": "image/png"
+        }
+    ],
+    "orientation": "portrait",
+    "display": "standalone",
+    "dir": "ltr",
+    "lang": "fr",
+    "name": "unlockey",
+    "short_name": "unlockey",
+    "start_url": "https://unlockey.un-zero-un.net/app/",
+    "scope": "https://unlockey.un-zero-un.net/app/",
+    "description": "unlockey est une application de sécurisation pour vos vélos.",
+    "id": "fr.unlockey"
+}

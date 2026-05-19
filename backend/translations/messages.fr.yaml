@@ -1,0 +1,13 @@
+state_machine:
+    occupation:
+        context_sentence:
+            created: 'Le casier a bien été attribué. Vous pouvez maintenant l''ouvrir pour dépôt.'
+            open_for_deposit: 'Le casier est ouvert en attente de dépôt'
+            full: 'Le casier contient un colis'
+            open_for_pickup: 'Ouvrir pour retirer le colis'
+            picked_up: 'Le casier a été libéré'
+        transition:
+            open_for_deposit: Ouvrir pour dépôt
+            fill: Déposer le colis
+            open_for_pick_up: Ouvrir pour retrait
+            pick_up: retirer
