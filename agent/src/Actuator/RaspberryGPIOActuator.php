@@ -15,6 +15,9 @@ final readonly class RaspberryGPIOActuator implements Actuator
         private ?array $gpioMap,
     )
     {
+        if (null !== $this->gpioMap && [] !== $this->gpioMap) {
+            $this->gpio->setup(...array_values($this->gpioMap));
+        }
     }
 
     public function lock(LockerLockState $lockerLockState): void
