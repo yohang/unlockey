@@ -19,10 +19,6 @@ parameters:
     unlock_time: '%env(int:UNLOCK_TIME)%'
 
 services:
-    _instanceof:
-        App\Actuator\Actuator: { tags: ['actuator'] }
-        Doctrine\Common\EventSubscriber: { tags: ['doctrine.event_subscriber'] }
-
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
@@ -49,3 +45,7 @@ services:
             $library: '%gpio_library%'
 
     App\Actuator\Actuator: '@App\Actuator\RaspberryGPIOActuator'
+
+when@dev:
+    services:
+        App\Actuator\Actuator: '@App\Actuator\NullActuator'

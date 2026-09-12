@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Entity\LockerLockState;
 use App\Provider\LockEventProvider;
 use App\Repository\LockerLockStateRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -22,6 +24,7 @@ final class LockerWatcherCommand extends Command implements SignalableCommandInt
         private readonly LockEventProvider         $lockEventProvider,
         private readonly LockerLockStateRepository $lockerLockStateRepository,
         private readonly LoggerInterface           $logger,
+        private readonly ManagerRegistry           $managerRegistry,
         private readonly array                     $watchedLockerCodes,
     )
     {
@@ -41,7 +44,7 @@ final class LockerWatcherCommand extends Command implements SignalableCommandInt
         $table = $io->createTable();
         $table->setHeaders(['Locker Code', 'Lock State']);
         foreach ($rows as $lockerCode => $i) {
-            $table->addRow([$lockerCode, $this->lockerLockStateRepository->findOrCreate($lockerCode)->getLockedCharacter()]);
+            $table->addRow([$lockerCode, $this->lockChar($this->lockerLockStateRepository->findOrCreate($lockerCode))]);
         }
 
         $table->render();
@@ -52,11 +55,25 @@ final class LockerWatcherCommand extends Command implements SignalableCommandInt
 
             ['action' => $action, 'code' => $lockerCode] = $event;
             $lockerLockState = $this->lockerLockStateRepository->findOrCreate($lockerCode);
-            $lockerLockState->locked = 'close' === $action;
-            $this->lockerLockStateRepository->update($lockerLockState);
+
+            try {
+                $lockerLockState->locked = 'close' === $action;
+                $this->lockerLockStateRepository->update($lockerLockState);
+            } catch (\Throwable $e) {
+                // Actuation runs inside the flush (preUpdate listener); a hardware
+                // failure rolls back the transaction and closes the EntityManager.
+                // Reset it so the long-running watcher survives to the next event.
+                $this->logger->error(
+                    'Actuation failed for locker {lockerCode}, state not persisted: {errorMessage}',
+                    ['lockerCode' => $lockerCode, 'errorMessage' => $e->getMessage(), 'exception' => $e],
+                );
+                $this->managerRegistry->resetManager();
+
+                continue;
+            }
 
             if (isset($rows[$lockerCode])) {
-                $table->setRow($rows[$lockerCode], [$lockerCode, $lockerLockState->getLockedCharacter()]);
+                $table->setRow($rows[$lockerCode], [$lockerCode, $this->lockChar($lockerLockState)]);
             } else {
                 $this->logger->warning(
                     'Received event for unregistered locker code {lockerCode} (known locker codes: {knownLockerCodes})',
@@ -68,6 +85,11 @@ final class LockerWatcherCommand extends Command implements SignalableCommandInt
         }
 
         return self::SUCCESS;
+    }
+
+    private function lockChar(LockerLockState $lockerLockState): string
+    {
+        return $lockerLockState->locked ? '🔴 Closed' : '🟢 Open';
     }
 
     public function getSubscribedSignals(): array

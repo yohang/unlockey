@@ -34,11 +34,4 @@ final readonly class ActuateSubscriber
             $this->actuator->unlock($entity);
         }
     }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::preUpdate => 'preUpdate',
-        ];
-    }
 }

@@ -26,7 +26,7 @@ final readonly class LockEventProvider
     }
 
     /**
-     * @return \Generator<int, array{action: string, lockerCode: string}>
+     * @return \Generator<int, array{action: string, code: string}>
      * @throws JsonException
      * @throws TransportExceptionInterface
      */
@@ -36,7 +36,7 @@ final readonly class LockEventProvider
         $client = new EventSourceHttpClient($httpClient);
 
         /**
-         * @var array<string, array{ticks: int, event: array{action: string, lockerCode: string}}> $timeTasks
+         * @var array<string, array{ticks: int, event: array{action: string, code: string}}> $timeTasks
          */
         $timeTasks = [];
         $source = $this->connect($client);
@@ -90,9 +90,9 @@ final readonly class LockEventProvider
     }
 
     /**
-     * @param array<string, array{ticks: int, event: array{action: string, lockerCode: string}}> $timeTasks
+     * @param array<string, array{ticks: int, event: array{action: string, code: string}}> $timeTasks
      *
-     * @return \Generator<int, array{action: string, lockerCode: string}>
+     * @return \Generator<int, array{action: string, code: string}>
      */
     private function tickPendingTasks(array &$timeTasks): \Generator
     {

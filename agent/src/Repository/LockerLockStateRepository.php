@@ -32,6 +32,11 @@ final class LockerLockStateRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Persists pending changes. The flush() triggers the preUpdate actuation
+     * listener (ActuateSubscriber), which drives the GPIO relay; a hardware
+     * failure there aborts the flush so the DB never diverges from the latch.
+     */
     public function update(LockerLockState $lockerLockState): void
     {
         $this->getEntityManager()->flush();

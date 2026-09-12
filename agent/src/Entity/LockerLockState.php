@@ -37,9 +37,4 @@ class LockerLockState
         $this->locked = $locked;
         $this->lastChange = new \DateTimeImmutable;
     }
-
-    public function getLockedCharacter(): string
-    {
-        return $this->locked ? '🔴 Closed' : '🟢 Open';
-    }
 }

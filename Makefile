@@ -29,9 +29,6 @@ agent/vendor: agent/composer.json
 backend/vendor: backend/composer.json backend/composer.lock backend/symfony.lock
 	@$(DOCKER_COMPOSE) run --rm backend-php composer install
 
-backend/node_modules: backend/package.json backend/yarn.lock
-	@$(DOCKER_COMPOSE) run --rm backend-php yarn
-
 up: ## Turn-on the containers
 	@mkdir -p agent/var/data
 	@$(DOCKER_COMPOSE) up -d --remove-orphans
@@ -42,7 +39,7 @@ up: ## Turn-on the containers
 
 run: .configured up ## Run the project. Create the Database  and build the images if needed
 
-first_run: backend/infra/docker/tls/cert.pem pull build agent/vendor backend/vendor backend/node_modules agent/reset up backend/reset backend/public/build
+first_run: backend/infra/docker/tls/cert.pem pull build agent/vendor backend/vendor agent/reset up backend/reset
 
 psalm:
 	@$(DOCKER_COMPOSE) run --rm backend-php ./vendor/bin/psalm
@@ -52,9 +49,6 @@ psalm_vener:
 
 test:
 	@$(DOCKER_COMPOSE) run --rm backend-php ./bin/phpunit
-
-backend/public/build: backend/assets/** backend/yarn.lock backend/webpack.config.js
-	@$(DOCKER_COMPOSE) run --rm backend-php yarn build
 
 assets_serve:
 	@$(DOCKER_COMPOSE) exec backend-php yarn dev-server

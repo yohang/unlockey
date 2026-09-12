@@ -10,6 +10,4 @@ interface Actuator
     public function lock(LockerLockState $lockerLockState): void;
 
     public function unlock(LockerLockState $lockerLockState): void;
-
-    public function supports(LockerLockState $lockerLockState): bool;
 }
