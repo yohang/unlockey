@@ -24,6 +24,14 @@ services:
     # please note that last definitions always *replace* previous ones
 
     Finite\StateMachine: ~
+
+    # Adds the reachable Finite transitions to the JSON-LD representation of a Locker
+    App\Serializer\LockerTransitionsNormalizer:
+        decorates: api_platform.jsonld.normalizer.item
+
+    # Documents that "transitions" key in the Locker JSON Schema / OpenAPI
+    App\JsonSchema\LockerSchemaFactory:
+        decorates: api_platform.json_schema.schema_factory
     Finite\Extension\Twig\FiniteExtension: ~
     Finite\Event\EventDispatcher:
         calls:
@@ -32,3 +40,18 @@ services:
                 arguments:
                     - 'Finite\Event\CanTransitionEvent'
                     - ['@App\Workflow\EventListener\OccupationStateTransitionListener', onCanTransition]
+
+when@test:
+    services:
+        # No network in tests: swap the real hub for a MockHub whose publisher is a no-op.
+        # MercureBundle still decorates it with TraceableHub (kernel.debug), so published
+        # updates are visible in the profiler's "mercure" data collector.
+        App\Tests\Mercure\NullPublisher: ~
+        mercure.hub.default:
+            class: Symfony\Component\Mercure\MockHub
+            arguments:
+                $url: '%env(MERCURE_URL)%'
+                $jwtProvider: '@mercure.hub.default.jwt.provider'
+                $publisher: !closure '@App\Tests\Mercure\NullPublisher'
+                $jwtFactory: '@mercure.hub.default.jwt.factory'
+                $publicUrl: '%env(MERCURE_PUBLIC_URL)%'

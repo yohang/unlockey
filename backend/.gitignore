@@ -15,3 +15,8 @@
 ###< symfony/asset-mapper ###
 
 /infra/docker/php/tls/*
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

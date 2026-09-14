@@ -62,7 +62,7 @@ clean:
 		backend/infra/docker/tls/cert.pem \
 		backend/infra/docker/tls/key.pem \
 		backend/node_modules \
-		backend/public/build\
+		backend/public/build \
 		backend/public/bundles  \
 		backend/var \
 		backend/vendor \

@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Entity\Locker;
-use App\Service\LockerLockingService;
+use App\Repository\LockerRepository;
+use App\Workflow\State\LockerState;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -16,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Finite\StateMachine;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -26,7 +28,8 @@ final class LockerController extends AbstractCrudController
 {
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly LockerLockingService $lockerLockingService,
+        private readonly StateMachine $stateMachine,
+        private readonly LockerRepository $lockerRepository,
     )
     {
     }
@@ -69,9 +72,16 @@ final class LockerController extends AbstractCrudController
         $locker = $context->getEntity()->getInstance();
 
         assert($locker instanceof Locker);
-        $this->lockerLockingService->open($locker);
 
-        $this->addFlash('success', 'Le locker a été ouvert avec succès !');
+        if (!$this->stateMachine->can($locker, LockerState::TRANSITION_OPEN)) {
+            $this->addFlash('warning', 'Le locker est déjà ouvert.');
+        } else {
+            // Flushing the state change lets API Platform publish the Mercure update.
+            $this->stateMachine->apply($locker, LockerState::TRANSITION_OPEN);
+            $this->lockerRepository->update();
+
+            $this->addFlash('success', 'Le locker a été ouvert avec succès !');
+        }
 
         return new RedirectResponse($this->adminUrlGenerator->unsetAll()->setController(LockerController::class)->generateUrl());
     }

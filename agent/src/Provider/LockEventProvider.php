@@ -13,10 +13,11 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final readonly class LockEventProvider
 {
+    private const string STATE_OPEN = 'open';
+
     public function __construct(
         private LoggerInterface $logger,
         private array           $watchedLockerCodes,
-        private string          $appBaseUrl,
         private string          $mercureUrl,
         private string          $mercureJwt,
         private int             $tickTime,
@@ -64,15 +65,19 @@ final readonly class LockEventProvider
                     }
 
                     if ($chunk instanceof ServerSentEvent) {
-                        $data = $chunk->getArrayData();
-                        if ($data['action'] === 'open') {
-                            $timeTasks[$data['code']] = [
+                        $event = $this->toLockEvent($chunk->getArrayData());
+                        if (null === $event) {
+                            continue;
+                        }
+
+                        if (self::STATE_OPEN === $event['action']) {
+                            $timeTasks[$event['code']] = [
                                 'ticks' => $this->unlockTime / $this->tickTime,
-                                'event' => [...$data, 'action' => 'close'],
+                                'event' => [...$event, 'action' => 'close'],
                             ];
                         }
 
-                        yield $data;
+                        yield $event;
                     }
                 }
             } catch (\LogicException|TransportExceptionInterface $e) {
@@ -87,6 +92,36 @@ final readonly class LockEventProvider
                 $source = $this->reconnect($client);
             }
         }
+    }
+
+    /**
+     * Maps a serialized Locker (API Platform Mercure payload) to an open/close event.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array{action: string, code: string}|null
+     */
+    private function toLockEvent(array $data): ?array
+    {
+        $code = $data['code'] ?? null;
+        $state = $data['state'] ?? null;
+
+        if (!is_string($code) || !is_string($state)) {
+            $this->logger->warning('Ignoring Mercure update without "code" or "state": {payload}', ['payload' => json_encode($data)]);
+
+            return null;
+        }
+
+        if (!in_array($code, $this->watchedLockerCodes, true)) {
+            $this->logger->debug('Ignoring Mercure update for unwatched locker {code}', ['code' => $code]);
+
+            return null;
+        }
+
+        return [
+            'action' => self::STATE_OPEN === $state ? 'open' : 'close',
+            'code' => $code,
+        ];
     }
 
     /**
@@ -107,6 +142,11 @@ final readonly class LockEventProvider
         }
     }
 
+    public static function lockerTopic(string $code): string
+    {
+        return '/api/lockers/' . $code;
+    }
+
     private function reconnect(EventSourceHttpClient $client): ResponseInterface
     {
         $this->logger->debug('Reconnecting to Mercure stream');
@@ -117,7 +157,8 @@ final readonly class LockEventProvider
     private function connect(EventSourceHttpClient $client): ResponseInterface
     {
         $topicArguments = array_map(
-            fn (string $code) => 'topic=' . urlencode($this->appBaseUrl . '/app/locker/' . $code . '/{+any}'),
+            // Topic = locker path IRI, exactly what the backend publishes (see Locker::mercure topics).
+            fn (string $code) => 'topic=' . urlencode(self::lockerTopic($code)),
             $this->watchedLockerCodes,
         );
 
