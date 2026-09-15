@@ -95,7 +95,8 @@ final class LockerTest extends ApiTestCase
         self::assertCount(1, $updates);
         // The topic is the path IRI (same as "@id"), independent of the request scheme/host.
         self::assertSame(['/api/lockers/chips-3'], $updates[0]->getTopics());
-        self::assertFalse($updates[0]->isPrivate());
+        // Private update: only subscribers whose JWT lists this topic receive it (agent, Twig page cookie).
+        self::assertTrue($updates[0]->isPrivate());
         $payload = json_decode($updates[0]->getData(), true, flags: JSON_THROW_ON_ERROR);
         self::assertSame('/api/lockers/chips-3', $payload['@id']);
         self::assertSame('chips-3', $payload['code']);
