@@ -33,9 +33,10 @@ use Symfony\Component\Validator\Constraints\NotBlank;
         new Get(),
     ],
     normalizationContext: ['groups' => [self::GROUP_READ]],
-    // Topic = path IRI ("/api/lockers/{code}", same as "@id"), so publishing does not depend on
-    // the scheme/host of the incoming request and the agent can subscribe to a stable topic.
-    mercure: ['topics' => ['@=iri(object, ' . UrlGeneratorInterface::ABS_PATH . ')']],
+    mercure: [
+        'topics' => ['@=iri(object, ' . UrlGeneratorInterface::ABS_PATH . ')'],
+        'private' => true,
+    ],
 )]
 final class Locker implements HasTimestamp, \Stringable
 {
