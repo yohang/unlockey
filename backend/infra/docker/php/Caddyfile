@@ -35,13 +35,14 @@
 	root /app/public
 	encode zstd br gzip
 
-	mercure {
-		# Publisher JWT key
-		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
-		# Subscriber JWT key
-		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
-		# Extra directives
-		{$MERCURE_EXTRA_DIRECTIVES}
+	reverse_proxy /.well-known/mercure* {$MERCURE_UPSTREAM:mercure:80} {
+		# Server-Sent Events: flush every write, never buffer
+		flush_interval -1
+		transport http {
+			versions 1.1 2
+			read_timeout 24h
+			response_header_timeout 24h
+		}
 	}
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics

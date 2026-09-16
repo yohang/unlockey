@@ -53,5 +53,7 @@ when@test:
                 $url: '%env(MERCURE_URL)%'
                 $jwtProvider: '@mercure.hub.default.jwt.provider'
                 $publisher: !closure '@App\Tests\Mercure\NullPublisher'
-                $jwtFactory: '@mercure.hub.default.jwt.factory'
+                # Factory decorated with the protocol 1.0 default claims (iss, aud, sub, client_id)
+                $jwtFactory: '@mercure.hub.default.jwt.factory.default_claims'
                 $publicUrl: '%env(MERCURE_PUBLIC_URL)%'
+                $protocolVersion: !php/enum Symfony\Component\Mercure\ProtocolVersion::V1

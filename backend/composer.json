@@ -22,7 +22,7 @@
         "symfony/expression-language": "8.1.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "8.1.*",
-        "symfony/mercure-bundle": "^0.4.2",
+        "symfony/mercure-bundle": "^0.5",
         "symfony/messenger": "8.1.*",
         "symfony/monolog-bundle": "^4.0.2",
         "symfony/property-access": "8.1.*",
