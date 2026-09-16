@@ -142,11 +142,6 @@ final readonly class LockEventProvider
         }
     }
 
-    public static function lockerTopic(string $code): string
-    {
-        return '/api/lockers/' . $code;
-    }
-
     private function reconnect(EventSourceHttpClient $client): ResponseInterface
     {
         $this->logger->debug('Reconnecting to Mercure stream');
@@ -156,14 +151,8 @@ final readonly class LockEventProvider
 
     private function connect(EventSourceHttpClient $client): ResponseInterface
     {
-        $topicArguments = array_map(
-            // Topic = locker path IRI, exactly what the backend publishes (see Locker::mercure topics).
-            fn (string $code) => 'topic=' . urlencode(self::lockerTopic($code)),
-            $this->watchedLockerCodes,
-        );
-
         return $client->connect(
-            $this->mercureUrl . '?' . implode('&', $topicArguments),
+            $this->mercureUrl . '?match=*',
             [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->mercureJwt,

@@ -8,6 +8,9 @@ services:
     backend-database:
         extends: { file: backend/compose.yaml, service: backend-database }
 
+    mercure:
+        extends: { file: backend/compose.yaml, service: mercure }
+
 networks:
     unlockey-agent: ~
     unlockey-backend: ~
@@ -16,3 +19,5 @@ volumes:
     database-data: ~
     caddy_data: ~
     caddy_config: ~
+    mercure_data: ~
+    mercure_config: ~
